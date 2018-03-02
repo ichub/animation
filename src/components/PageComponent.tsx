@@ -16,9 +16,6 @@ export class PageComponent extends React.Component<any, IPageComponentState> {
 
 const style = {
     pageStyle: {
-        fontWeight: "bold",
-        fontSize: "14pt",
-        fontFamily: "'Open Sans Condensed', sans-serif"
     },
     content: {
         width: "100vw",
