@@ -52,9 +52,11 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
         this.ctx.drawImage(this.img, this.offsetX - this.img.naturalWidth, 0, this.img.naturalWidth, this.img.naturalHeight);
 
         this.ctx.strokeStyle = "black";
+        this.ctx.fillStyle = "white";
         this.ctx.beginPath();
         this.ctx.arc(this.circlePos[0], this.circlePos[1], this.circleRadius, 0, 2 * Math.PI);
         this.ctx.stroke();
+        this.ctx.fill();
     }
 
     update() {
