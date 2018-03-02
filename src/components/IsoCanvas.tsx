@@ -16,6 +16,8 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
     gravity = 0.1;
     circleRadius = 50;
     offsetX = 0;
+    currentWaitingTime = 100;
+    pausedVelocity = gl.vec2.fromValues(0, 0);
 
     img: HTMLImageElement;
 
@@ -28,6 +30,7 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
             height: 600 * 0.75,
             speedX: 1,
             speedY: 1,
+            jumpWait: 100
         };
 
         this.img = document.createElement("img");
@@ -60,21 +63,26 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
     }
 
     update() {
-        gl.vec2.add(this.circlePos, this.circlePos, this.circleVel);
-        gl.vec2.add(this.circleVel, this.circleVel, gl.vec2.fromValues(0, this.gravity * this.state.speedY));
+        if (this.currentWaitingTime < this.state.jumpWait) {
+            this.currentWaitingTime++;
+        } else {
+            gl.vec2.add(this.circlePos, this.circlePos, this.circleVel);
+            gl.vec2.add(this.circleVel, this.circleVel, gl.vec2.fromValues(0, this.gravity * this.state.speedY));
 
-        if (this.circlePos[1] + this.circleRadius > this.state.height) {
-            this.circleVel[1] = Math.abs(this.circleVel[1]) * -0.9;
-            this.circlePos[1] = this.state.height - this.circleRadius;
+            if (this.circlePos[1] + this.circleRadius > this.state.height) {
+                this.circleVel[1] = Math.abs(this.circleVel[1]) * -0.9;
+                this.circlePos[1] = this.state.height - this.circleRadius;
+                this.currentWaitingTime = 0;
+            }
+
+            if (this.offsetX < -this.img.naturalWidth) {
+                this.offsetX = 0;
+            } else if (this.offsetX > this.img.naturalWidth) {
+                this.offsetX = 0;
+            }
+
+            this.offsetX -= this.state.speedX;
         }
-
-        if (this.offsetX < -this.img.naturalWidth) {
-            this.offsetX = 0;
-        } else if (this.offsetX > this.img.naturalWidth) {
-            this.offsetX = 0;
-        }
-
-        this.offsetX -= this.state.speedX;
     }
 
     frame() {
@@ -118,6 +126,19 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
                             });
                         }}/>
                 </label>
+
+                <label>
+                    jump interval
+                    <input
+                        style={style.input}
+                        type="range"
+                        value={this.state.jumpWait}
+                        onChange={e => {
+                            this.setState<any>({
+                                jumpWait: e.target.value
+                            });
+                        }}/>
+                </label>
             </div>
 
         );
@@ -138,4 +159,5 @@ interface IIsoCanvasState {
     height: number;
     speedX: number;
     speedY: number;
+    jumpWait: number;
 }
