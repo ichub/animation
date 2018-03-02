@@ -14,7 +14,6 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
     circlePos = gl.vec2.fromValues(100, 100);
     circleVel = gl.vec2.fromValues(0, 0);
     gravity = 0.1;
-    circleRadius = 50;
     offsetX = 0;
     currentWaitingTime = 100;
     pausedVelocity = gl.vec2.fromValues(0, 0);
@@ -30,7 +29,8 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
             height: 600 * 0.75,
             speedX: 1,
             speedY: 1,
-            jumpWait: 100
+            jumpWait: 100,
+            circleRadius: 50,
         };
 
         this.img = document.createElement("img");
@@ -57,7 +57,7 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
         this.ctx.strokeStyle = "black";
         this.ctx.fillStyle = "white";
         this.ctx.beginPath();
-        this.ctx.arc(this.circlePos[0], this.circlePos[1], this.circleRadius, 0, 2 * Math.PI);
+        this.ctx.arc(this.circlePos[0], this.circlePos[1], this.state.circleRadius, 0, 2 * Math.PI);
         this.ctx.stroke();
         this.ctx.fill();
     }
@@ -69,9 +69,9 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
             gl.vec2.add(this.circlePos, this.circlePos, this.circleVel);
             gl.vec2.add(this.circleVel, this.circleVel, gl.vec2.fromValues(0, this.gravity * this.state.speedY));
 
-            if (this.circlePos[1] + this.circleRadius > this.state.height) {
+            if (this.circlePos[1] + this.state.circleRadius > this.state.height) {
                 this.circleVel[1] = Math.abs(this.circleVel[1]) * -0.9;
-                this.circlePos[1] = this.state.height - this.circleRadius;
+                this.circlePos[1] = this.state.height - this.state.circleRadius;
                 this.currentWaitingTime = 0;
             }
 
@@ -139,6 +139,19 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
                             });
                         }}/>
                 </label>
+                <br/>
+                <label>
+                    size
+                    <input
+                        style={style.input}
+                        type="range"
+                        value={this.state.circleRadius}
+                        onChange={e => {
+                            this.setState<any>({
+                                circleRadius: e.target.value
+                            });
+                        }}/>
+                </label>
             </div>
 
         );
@@ -160,4 +173,5 @@ interface IIsoCanvasState {
     speedX: number;
     speedY: number;
     jumpWait: number;
+    circleRadius: number;
 }
