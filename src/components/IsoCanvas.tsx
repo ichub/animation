@@ -13,10 +13,10 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
 
     circlePos = gl.vec2.fromValues(100, 100);
     circleVel = gl.vec2.fromValues(0, 0);
-    gravity = 0.1;
     offsetX = 0;
     currentWaitingTime = 100;
     pausedVelocity = gl.vec2.fromValues(0, 0);
+    strokeSize = 5;
 
     img: HTMLImageElement;
 
@@ -31,10 +31,11 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
             speedY: 1,
             jumpWait: 100,
             circleRadius: 50,
+            gravity: 1
         };
 
         this.img = document.createElement("img");
-        this.img.src = "/background.jpg"
+        this.img.src = "/background.png"
     }
 
     componentDidMount() {
@@ -56,6 +57,7 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
 
         this.ctx.strokeStyle = "black";
         this.ctx.fillStyle = "white";
+        this.ctx.lineWidth = this.strokeSize;
         this.ctx.beginPath();
         this.ctx.arc(this.circlePos[0], this.circlePos[1], this.state.circleRadius, 0, 2 * Math.PI);
         this.ctx.stroke();
@@ -67,11 +69,11 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
             this.currentWaitingTime++;
         } else {
             gl.vec2.add(this.circlePos, this.circlePos, this.circleVel);
-            gl.vec2.add(this.circleVel, this.circleVel, gl.vec2.fromValues(0, this.gravity * this.state.speedY));
+            gl.vec2.add(this.circleVel, this.circleVel, gl.vec2.fromValues(0, this.state.gravity / 10 * this.state.speedY));
 
-            if (this.circlePos[1] + this.state.circleRadius > this.state.height) {
-                this.circleVel[1] = Math.abs(this.circleVel[1]) * -0.9;
-                this.circlePos[1] = this.state.height - this.state.circleRadius;
+            if (this.circlePos[1] + this.state.circleRadius + this.strokeSize / 2 > this.state.height) {
+                this.circleVel[1] = -this.state.speedY;
+                this.circlePos[1] = this.state.height - this.state.circleRadius - this.strokeSize / 2;
                 this.currentWaitingTime = 0;
             }
 
@@ -120,6 +122,7 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
                         style={style.input}
                         type="range"
                         value={this.state.speedY}
+                        step={0.1}
                         onChange={e => {
                             this.setState<any>({
                                 speedY: e.target.value
@@ -152,6 +155,21 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
                             });
                         }}/>
                 </label>
+                <label>
+                    gravity
+                    <input
+                        style={style.input}
+                        type="range"
+                        value={this.state.gravity}
+                        min={0.05}
+                        max={1}
+                        step={0.05}
+                        onChange={e => {
+                            this.setState<any>({
+                                gravity: e.target.value
+                            });
+                        }}/>
+                </label>
             </div>
 
         );
@@ -173,5 +191,6 @@ interface IIsoCanvasState {
     speedX: number;
     speedY: number;
     jumpWait: number;
+    gravity: number;
     circleRadius: number;
 }
