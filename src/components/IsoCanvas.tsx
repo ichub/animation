@@ -183,34 +183,33 @@ export class IsoCanvas extends React.Component<any, IIsoCanvasState> {
     }
 
     update() {
-        gl.vec2.add(this.circlePos, this.circlePos, this.circleVel);
-        gl.vec2.add(this.circleVel, this.circleVel, gl.vec2.fromValues(0, this.state.gravity / 10 * this.state.speedY));
+        if (this.jumping) {
+            gl.vec2.add(this.circlePos, this.circlePos, this.circleVel);
+            gl.vec2.add(this.circleVel, this.circleVel, gl.vec2.fromValues(0, this.state.gravity / 10 * this.state.speedY));
+
+            if (this.circlePos[1] + this.state.circleRadius + this.strokeSize / 2 > this.state.height && this.jumping) {
+                this.circleVel[1] = -this.state.speedY;
+                this.circlePos[1] = this.state.height - this.state.circleRadius - this.strokeSize / 2 - 1;
+
+                this.jumping = false;
+            }
 
 
-        if (this.circlePos[1] + this.state.circleRadius + this.strokeSize / 2 > this.state.height) {
-            this.jumping = false;
-            this.currentWaitingTime = 0;
-            this.circleVel[1] = 0;
-            this.circlePos[1] = this.state.height - this.state.circleRadius - this.strokeSize / 2;
-        }
+            if (this.offsetX < -this.img.naturalWidth) {
+                this.offsetX = 0;
+            } else if (this.offsetX > this.img.naturalWidth) {
+                this.offsetX = 0;
+            }
 
-        if (this.currentWaitingTime < this.state.jumpWait && !this.jumping) {
-            this.currentWaitingTime++;
+            if (this.moving) {
+                this.offsetX -= this.state.speedX;
+            }
         } else {
-            this.jumping = true;
-            this.currentWaitingTime = 0;
-            this.circleVel[1] = -this.state.speedY;
-
-        }
-
-        if (this.offsetX < -this.img.naturalWidth) {
-            this.offsetX = 0;
-        } else if (this.offsetX > this.img.naturalWidth) {
-            this.offsetX = 0;
-        }
-
-        if (this.moving) {
-            this.offsetX -= this.state.speedX;
+            this.currentWaitingTime++;
+            if (this.currentWaitingTime >= this.state.jumpWait) {
+                this.currentWaitingTime = 0;
+                this.jumping = true;
+            }
         }
     }
 
